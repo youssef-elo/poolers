@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEETERS - All Students</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        accent: {
+                            50: '#fefce8',
+                            100: '#fef9c3',
+                            200: '#fef08a',
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#E6C642',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                            800: '#854d0e',
+                            900: '#713f12',
+                        },
+                        dark: {
+                            50: '#18181b',
+                            100: '#27272a',
+                            200: '#3f3f46',
+                            300: '#52525b',
+                            400: '#71717a',
+                            500: '#a1a1aa',
+                            600: '#d4d4d8',
+                            700: '#e4e4e7',
+                            800: '#f4f4f5',
+                            900: '#fafafa',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Righteous', 'Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Consolas', 'Monaco', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html {
+            font-family: 'Righteous', 'Inter', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23E6C642" opacity="0.1"/></pattern></defs><rect width="1000" height="1000" fill="url(%23grain)"/></svg>');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+        }
+        
+        .glass-header {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-primary {
+            background: #E6C642;
+            color: #000;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary:hover {
+            background: #ca8a04;
+            transform: translateY(-1px);
+            color: #000;
+            text-decoration: none;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: #E6C642;
+            border: 1px solid #E6C642;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-outline:hover {
+            background: #E6C642;
+            color: #000;
+            text-decoration: none;
+        }
+        
+        .input-field {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: white;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #E6C642;
+            box-shadow: 0 0 0 2px rgba(230, 198, 66, 0.2);
+        }
+        
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .input-field option {
+            background: #1a1a1a;
+            color: white;
+            padding: 0.5rem;
+        }
+        
+        .input-field option:hover {
+            background: #E6C642;
+            color: #000;
+        }
+        
+        .student-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .table-row {
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .table-row:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-1px);
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #E6C642;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="text-white bg-black">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="glass-header shadow-lg border-b border-white/10 sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-14 md:h-16">
+                    <!-- Logo -->
+                    <div class="flex items-center space-x-4">
+                        <div class="text-2xl md:text-3xl font-bold text-accent-500">
+                            LEETERS
+                        </div>
+                        <div class="text-sm text-gray-400 hidden md:block">
+                            All Students
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="flex items-center space-x-4">
+                        <a href="/<%= sessionId ? '?session=' + sessionId : '' %>" 
+                           class="btn-outline text-sm">
+                            <i class="fas fa-arrow-left mr-2"></i>Back to Home
+                        </a>
+                        <% if (user) { %>
+                            <a href="/logout<%= sessionId ? '?session=' + sessionId : '' %>" 
+                               class="p-2 text-gray-400 hover:text-red-400 transition-colors" 
+                               title="Logout">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
+            <% if (error) { %>
+                <div class="bg-red-900/20 border border-red-800 rounded-lg p-6 text-center mb-6">
+                    <i class="fas fa-exclamation-triangle text-red-400 text-2xl mb-2"></i>
+                    <p class="text-red-400"><%= error %></p>
+                </div>
+            <% } else { %>
+
+            <!-- Page Title -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold mb-4 text-white">
+                    All <span class="text-accent-500">Students</span>
+                </h1>
+                <% if (user) { %>
+                    <p class="text-gray-300">Welcome, <%= user.displayname || user.login %>! Browse all 42 School students</p>
+                <% } %>
+            </div>
+
+            <!-- Filters -->
+            <div class="glass-panel rounded-xl p-6 mb-8">
+                <h2 class="text-lg md:text-xl font-semibold text-white mb-6 flex items-center">
+                    <i class="fas fa-filter text-accent-500 mr-3"></i>
+                    Filters
+                </h2>
+                
+                <form method="GET" action="/all-students" class="space-y-4">
+                    <input type="hidden" name="session" value="<%= sessionId || '' %>">
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <!-- Search -->
+                        <div class="sm:col-span-2 lg:col-span-1">
+                            <label class="block text-sm font-medium text-white mb-2">Search</label>
+                            <input type="text" name="search" value="<%= filters.search || '' %>" 
+                                   placeholder="Search students..." class="input-field">
+                        </div>
+
+                        <!-- Campus Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-white mb-2">Campus</label>
+                            <select name="campus" class="input-field">
+                                <option value="all-morocco" <%= filters.campus === 'all-morocco' ? 'selected' : '' %>>All Morocco</option>
+                                <option value="1337-ben-guerir" <%= filters.campus === '1337-ben-guerir' ? 'selected' : '' %>>1337 Ben Guerir</option>
+                                <option value="1337-khouribga" <%= filters.campus === '1337-khouribga' ? 'selected' : '' %>>1337 Khouribga</option>
+                                <option value="1337-med" <%= filters.campus === '1337-med' ? 'selected' : '' %>>1337 Med</option>
+                                <option value="42-benguerir" <%= filters.campus === '42-benguerir' ? 'selected' : '' %>>42 Benguerir</option>
+                            </select>
+                        </div>
+
+                        <!-- Type Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-white mb-2">Type</label>
+                            <select name="type" class="input-field">
+                                <option value="all" <%= filters.type === 'all' ? 'selected' : '' %>>All</option>
+                                <option value="students" <%= filters.type === 'students' ? 'selected' : '' %>>Students</option>
+                                <option value="poolers" <%= filters.type === 'poolers' ? 'selected' : '' %>>Poolers</option>
+                            </select>
+                        </div>
+
+                        <!-- Year Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-white mb-2">Pool Year</label>
+                            <select name="poolYear" class="input-field">
+                                <option value="all" <%= filters.poolYear === 'all' ? 'selected' : '' %>>All Years</option>
+                                <option value="2025" <%= filters.poolYear === '2025' ? 'selected' : '' %>>2025</option>
+                                <option value="2024" <%= filters.poolYear === '2024' ? 'selected' : '' %>>2024</option>
+                                <option value="2023" <%= filters.poolYear === '2023' ? 'selected' : '' %>>2023</option>
+                                <option value="2022" <%= filters.poolYear === '2022' ? 'selected' : '' %>>2022</option>
+                                <option value="2021" <%= filters.poolYear === '2021' ? 'selected' : '' %>>2021</option>
+                                <option value="2020" <%= filters.poolYear === '2020' ? 'selected' : '' %>>2020</option>
+                            </select>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="flex items-end">
+                            <button type="submit" class="btn-primary w-full">
+                                <i class="fas fa-search mr-2"></i>Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Stats -->
+            <% if (students && students.length > 0) { %>
+                <div class="glass-panel rounded-xl p-6 mb-8">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-users text-accent-500 mr-3 text-xl"></i>
+                                <span class="text-2xl font-bold text-accent-500"><%= students.length %></span>
+                                <span class="text-gray-300 ml-2">Students Found</span>
+                            </div>
+                        </div>
+                        <div class="loading-indicator hidden">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- Students Table -->
+            <% if (students && students.length > 0) { %>
+                <!-- Result Count -->
+                <div class="mb-4 text-center">
+                    <p class="result-count text-gray-300">
+                        <i class="fas fa-users mr-2"></i>
+                        Showing <%= students.length %> students
+                    </p>
+                </div>
+                
+                <div class="glass-panel rounded-xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-black/20">
+                                    <th class="text-left px-6 py-4 text-sm font-semibold text-accent-500">
+                                        <i class="fas fa-user mr-2"></i>Student
+                                    </th>
+                                    <th class="text-left px-6 py-4 text-sm font-semibold text-accent-500">
+                                        <i class="fas fa-id-badge mr-2"></i>Login
+                                    </th>
+                                    <% if (filters.campus === 'all-morocco') { %>
+                                        <th class="text-left px-6 py-4 text-sm font-semibold text-accent-500">
+                                            <i class="fas fa-university mr-2"></i>Campus
+                                        </th>
+                                    <% } %>
+                                    <th class="text-left px-6 py-4 text-sm font-semibold text-accent-500">
+                                        <i class="fas fa-level-up-alt mr-2"></i>Level
+                                    </th>
+                                    <th class="text-left px-6 py-4 text-sm font-semibold text-accent-500">
+                                        <i class="fas fa-swimming-pool mr-2"></i>Pool
+                                    </th>
+                                    <th class="text-left px-6 py-4 text-sm font-semibold text-accent-500">
+                                        <i class="fas fa-coins mr-2"></i>Wallet
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body">
+                                <% students.forEach(student => { %>
+                                    <tr class="table-row" onclick="window.open('https://profile.intra.42.fr/users/<%= student.login %>', '_blank')">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center space-x-3">
+                                                <% if (student.image && student.image.link) { %>
+                                                    <img src="<%= student.image.link %>" 
+                                                         alt="<%= student.login %>" 
+                                                         class="student-avatar"
+                                                         onerror="this.src='https://ui-avatars.com/api/?name=<%= student.login %>&background=E6C642&color=000'">
+                                                <% } else { %>
+                                                    <div class="student-avatar bg-gray-700 flex items-center justify-center">
+                                                        <i class="fas fa-user text-gray-400"></i>
+                                                    </div>
+                                                <% } %>
+                                                <div>
+                                                    <div class="font-semibold text-white">
+                                                        <%= student.displayname || student.login %>
+                                                    </div>
+                                                    <% if (student.first_name && student.last_name) { %>
+                                                        <div class="text-sm text-gray-400">
+                                                            <%= student.first_name %> <%= student.last_name %>
+                                                        </div>
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <code class="text-accent-500 bg-black/20 px-2 py-1 rounded text-sm">
+                                                <%= student.login %>
+                                            </code>
+                                        </td>
+                                        <% if (filters.campus === 'all-morocco') { %>
+                                            <td class="px-6 py-4">
+                                                <% if (student.campus_info) { %>
+                                                    <div class="text-sm text-gray-300">
+                                                        <i class="fas fa-map-marker-alt text-accent-500 mr-1"></i>
+                                                        <%= student.campus_info.name %>
+                                                    </div>
+                                                    <div class="text-xs text-gray-400">
+                                                        <%= student.campus_info.city %>
+                                                    </div>
+                                                <% } else { %>
+                                                    <span class="text-gray-500">-</span>
+                                                <% } %>
+                                            </td>
+                                        <% } %>
+                                        <td class="px-6 py-4">
+                                            <% if (student.level) { %>
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-accent-500/20 text-accent-500">
+                                                    <%= student.level.toFixed(2) %>
+                                                </span>
+                                            <% } else { %>
+                                                <span class="text-gray-500">-</span>
+                                            <% } %>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <% if (student.pool_month && student.pool_year) { %>
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-500/20 text-green-400">
+                                                    <%= student.pool_month %> <%= student.pool_year %>
+                                                </span>
+                                            <% } else { %>
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-500/20 text-blue-400">
+                                                    Student
+                                                </span>
+                                            <% } %>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <% if (student.wallet) { %>
+                                                <span class="text-white font-semibold">
+                                                    <%= student.wallet %>₳
+                                                </span>
+                                            <% } else { %>
+                                                <span class="text-gray-500">-</span>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <% } else { %>
+                <div class="glass-panel rounded-xl p-8 text-center">
+                    <i class="fas fa-users text-accent-500 text-4xl mb-4"></i>
+                    <h3 class="text-xl font-semibold text-white mb-2">No Students Found</h3>
+                    <p class="text-gray-400">Try adjusting your filters or search terms.</p>
+                </div>
+            <% } %>
+            
+            <% } %>
+        </main>
+    </div>
+
+    <!-- Infinite Scroll Script -->
+    <script>
+        let isLoading = false;
+        let hasMore = true;
+        let currentOffset = <%= students && students.length ? students.length : 0 %>;
+        
+        const filters = {
+            campus: '<%= filters.campus %>',
+            type: '<%= filters.type %>',
+            poolYear: '<%= filters.poolYear %>',
+            search: '<%= filters.search || '' %>'
+        };
+
+        // Function to create student table row HTML
+        function createStudentRow(student) {
+            const avatarHtml = student.image && student.image.link 
+                ? `<img src="${student.image.link}" alt="${student.login}" class="student-avatar" onerror="this.src='https://ui-avatars.com/api/?name=${student.login}&background=E6C642&color=000'">`
+                : `<div class="student-avatar bg-gray-700 flex items-center justify-center">
+                     <i class="fas fa-user text-gray-400"></i>
+                   </div>`;
+            
+            const campusColumn = filters.campus === 'all-morocco' && student.campus_info 
+                ? `<td class="px-6 py-4">
+                     <div class="text-sm text-gray-300">
+                       <i class="fas fa-map-marker-alt text-accent-500 mr-1"></i>
+                       ${student.campus_info.name}
+                     </div>
+                     <div class="text-xs text-gray-400">
+                       ${student.campus_info.city}
+                     </div>
+                   </td>`
+                : '';
+            
+            const poolBadge = student.pool_month && student.pool_year 
+                ? `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-500/20 text-green-400">${student.pool_month} ${student.pool_year}</span>`
+                : '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-500/20 text-blue-400">Student</span>';
+            
+            const level = student.level 
+                ? `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-accent-500/20 text-accent-500">${student.level.toFixed(2)}</span>`
+                : '<span class="text-gray-500">-</span>';
+            
+            const wallet = student.wallet 
+                ? `<span class="text-white font-semibold">${student.wallet}₳</span>`
+                : '<span class="text-gray-500">-</span>';
+
+            return `
+                <tr class="table-row" onclick="window.open('https://profile.intra.42.fr/users/${student.login}', '_blank')">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center space-x-3">
+                            ${avatarHtml}
+                            <div>
+                                <div class="font-semibold text-white">
+                                    ${student.displayname || student.login}
+                                </div>
+                                ${student.first_name && student.last_name ? `<div class="text-sm text-gray-400">${student.first_name} ${student.last_name}</div>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <code class="text-accent-500 bg-black/20 px-2 py-1 rounded text-sm">${student.login}</code>
+                    </td>
+                    ${campusColumn}
+                    <td class="px-6 py-4">${level}</td>
+                    <td class="px-6 py-4">${poolBadge}</td>
+                    <td class="px-6 py-4">${wallet}</td>
+                </tr>
+            `;
+        }
+
+        // Function to load more students
+        async function loadMoreStudents() {
+            if (isLoading || !hasMore) return;
+            
+            isLoading = true;
+            const loadingIndicator = document.querySelector('.loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.classList.remove('hidden');
+            }
+
+            try {
+                const params = new URLSearchParams({
+                    offset: currentOffset,
+                    limit: 10000, // Load all available students
+                    campus: filters.campus,
+                    type: filters.type,
+                    poolYear: filters.poolYear,
+                    search: filters.search,
+                    session: '<%= sessionId || "" %>'
+                });
+
+                const response = await fetch(`/api/students/more?${params}`);
+                const data = await response.json();
+
+                if (data.students && data.students.length > 0) {
+                    const tbody = document.getElementById('students-table-body');
+                    if (tbody) {
+                        data.students.forEach(student => {
+                            const row = createStudentRow(student);
+                            tbody.insertAdjacentHTML('beforeend', row);
+                        });
+                        currentOffset += data.students.length;
+                    }
+                    
+                    // Update result count if total is available
+                    if (data.total !== undefined) {
+                        const resultCount = document.querySelector('.result-count');
+                        if (resultCount) {
+                            resultCount.textContent = `Showing ${data.total} students`;
+                        }
+                    }
+                }
+                
+                // Since we're loading all available students, set hasMore to false
+                hasMore = data.hasMore || false;
+                
+            } catch (error) {
+                console.error('Error loading more students:', error);
+            } finally {
+                isLoading = false;
+                if (loadingIndicator) {
+                    loadingIndicator.classList.add('hidden');
+                }
+            }
+        }
+
+        // Infinite scroll listener
+        function handleScroll() {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
+                loadMoreStudents();
+            }
+        }
+
+        // Initialize infinite scroll
+        window.addEventListener('scroll', handleScroll);
+        
+        // Start progressive loading after 2 seconds
+        <% if (students && students.length > 0) { %>
+            setTimeout(() => {
+                loadMoreStudents();
+            }, 2000);
+        <% } %>
+    </script>
+</body>
+</html>

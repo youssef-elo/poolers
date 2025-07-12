@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All 42 Students</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container-fluid {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 1rem;
+            padding: 2rem;
+            min-height: calc(100vh - 2rem);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .filters-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        .student-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        .student-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        .student-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f8f9fa;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+        }
+        .stats-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        .form-select, .form-control {
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        .table td {
+            vertical-align: middle;
+            border-color: #f0f0f0;
+        }
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="header">
+            <h1><i class="fas fa-users"></i> All 42 Students</h1>
+            <% if (user) { %>
+                <p>Welcome, <strong><%= user.login %></strong>! Browse all 42 School students</p>
+            <% } %>
+        </div>
+
+        <!-- Navigation -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <a href="/<%= sessionId ? '?session=' + sessionId : '' %>" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </a>
+            </div>
+            <div class="col-md-6 text-end">
+                <% if (user) { %>
+                    <a href="/logout<%= sessionId ? '?session=' + sessionId : '' %>" class="btn btn-outline-danger">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                <% } %>
+            </div>
+        </div>
+
+        <% if (error) { %>
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Error:</strong> <%= error %>
+            </div>
+        <% } else { %>
+
+        <!-- Filters -->
+        <div class="filters-card">
+            <h5><i class="fas fa-filter"></i> Filters</h5>
+            <form method="GET" action="/all-students">
+                <input type="hidden" name="session" value="<%= sessionId || '' %>">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">Campus</label>
+                        <select name="campus" class="form-select">
+                            <option value="">Select Campus</option>
+                            <option value="all-morocco" <%= filters.campus === 'all-morocco' ? 'selected' : '' %>>
+                                🇲🇦 All Morocco Campuses
+                            </option>
+                            <% if (campuses) { %>
+                                <% campuses.forEach(campus => { %>
+                                    <option value="<%= campus.id %>" <%= filters.campus == campus.id ? 'selected' : '' %>>
+                                        <%= campus.name %> - <%= campus.city %>, <%= campus.country %>
+                                    </option>
+                                <% }) %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Type</label>
+                        <select name="type" class="form-select">
+                            <option value="all" <%= filters.type === 'all' ? 'selected' : '' %>>All</option>
+                            <option value="students" <%= filters.type === 'students' ? 'selected' : '' %>>Students</option>
+                            <option value="poolers" <%= filters.type === 'poolers' ? 'selected' : '' %>>Poolers</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Pool Year</label>
+                        <select name="poolYear" class="form-select">
+                            <option value="">Any Year</option>
+                            <option value="2025" <%= filters.poolYear === '2025' ? 'selected' : '' %>>2025</option>
+                            <option value="2024" <%= filters.poolYear === '2024' ? 'selected' : '' %>>2024</option>
+                            <option value="2023" <%= filters.poolYear === '2023' ? 'selected' : '' %>>2023</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Pool Month</label>
+                        <select name="poolMonth" class="form-select">
+                            <option value="">Any Month</option>
+                            <option value="january" <%= filters.poolMonth === 'january' ? 'selected' : '' %>>January</option>
+                            <option value="february" <%= filters.poolMonth === 'february' ? 'selected' : '' %>>February</option>
+                            <option value="march" <%= filters.poolMonth === 'march' ? 'selected' : '' %>>March</option>
+                            <option value="april" <%= filters.poolMonth === 'april' ? 'selected' : '' %>>April</option>
+                            <option value="may" <%= filters.poolMonth === 'may' ? 'selected' : '' %>>May</option>
+                            <option value="june" <%= filters.poolMonth === 'june' ? 'selected' : '' %>>June</option>
+                            <option value="july" <%= filters.poolMonth === 'july' ? 'selected' : '' %>>July</option>
+                            <option value="august" <%= filters.poolMonth === 'august' ? 'selected' : '' %>>August</option>
+                            <option value="september" <%= filters.poolMonth === 'september' ? 'selected' : '' %>>September</option>
+                            <option value="october" <%= filters.poolMonth === 'october' ? 'selected' : '' %>>October</option>
+                            <option value="november" <%= filters.poolMonth === 'november' ? 'selected' : '' %>>November</option>
+                            <option value="december" <%= filters.poolMonth === 'december' ? 'selected' : '' %>>December</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results -->
+        <% if (students) { %>
+            <div class="stats-bar">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-bar"></i> 
+                            Found <%= students.length %> students
+                            <% if (filters.campus === 'all-morocco') { %>
+                                from all Morocco campuses
+                            <% } else if (filters.campus && campuses) { %>
+                                <% const selectedCampus = campuses.find(c => c.id == filters.campus); %>
+                                <% if (selectedCampus) { %>
+                                    from <%= selectedCampus.name %>
+                                <% } %>
+                            <% } %>
+                            <% if (filters.type !== 'all') { %>
+                                (<%= filters.type %>)
+                            <% } %>
+                        </h6>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <% if (students.length > 0) { %>
+                            <small class="text-muted">Showing results 1-<%= students.length %></small>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <% if (students.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user"></i> Student</th>
+                                <th><i class="fas fa-id-badge"></i> Login</th>
+                                <% if (filters.campus === 'all-morocco') { %>
+                                    <th><i class="fas fa-university"></i> Campus</th>
+                                <% } %>
+                                <th><i class="fas fa-level-up-alt"></i> Level</th>
+                                <th><i class="fas fa-swimming-pool"></i> Pool</th>
+                                <th><i class="fas fa-coins"></i> Wallet</th>
+                                <th><i class="fas fa-eye"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="students-container">
+                            <% students.forEach(student => { %>
+                                <tr onclick="window.open('https://profile.intra.42.fr/users/<%= student.login %>', '_blank')" style="cursor: pointer;">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <% if (student.image && student.image.link) { %>
+                                                <img src="<%= student.image.link %>" alt="<%= student.login %>" class="student-avatar me-2">
+                                            <% } else { %>
+                                                <div class="student-avatar me-2 d-flex align-items-center justify-content-center" style="background-color: #f8f9fa;">
+                                                    <i class="fas fa-user text-muted"></i>
+                                                </div>
+                                            <% } %>
+                                            <div>
+                                                <strong><%= student.displayname || student.login %></strong>
+                                                <% if (student.first_name && student.last_name) { %>
+                                                    <br><small class="text-muted"><%= student.first_name %> <%= student.last_name %></small>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><code><%= student.login %></code></td>
+                                    <% if (filters.campus === 'all-morocco') { %>
+                                        <td>
+                                            <% if (student.campus_info) { %>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                    <%= student.campus_info.name %><br>
+                                                    <%= student.campus_info.city %>
+                                                </small>
+                                            <% } else { %>
+                                                <span class="text-muted">-</span>
+                                            <% } %>
+                                        </td>
+                                    <% } %>
+                                    <td>
+                                        <% if (student.level) { %>
+                                            <span class="badge bg-info"><%= student.level.toFixed(2) %></span>
+                                        <% } else { %>
+                                            <span class="text-muted">-</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if (student.pool_month && student.pool_year) { %>
+                                            <span class="badge bg-success">
+                                                <%= student.pool_month %> <%= student.pool_year %>
+                                            </span>
+                                        <% } else { %>
+                                            <span class="badge bg-secondary">Student</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if (student.wallet) { %>
+                                            <span class="badge bg-warning text-dark"><%= student.wallet %></span>
+                                        <% } else { %>
+                                            <span class="text-muted">-</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <a href="/student/<%= student.id %><%= sessionId ? '?session=' + sessionId : '' %>" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h5>No students found</h5>
+                    <p class="text-muted">Try adjusting your filters or select a different campus.</p>
+                </div>
+            <% } %>
+        <% } else if (campuses) { %>
+            <div class="text-center py-5">
+                <i class="fas fa-filter fa-3x text-muted mb-3"></i>
+                <h5>Select filters to view students</h5>
+                <p class="text-muted">Choose a campus and other filters above to see students.</p>
+            </div>
+        <% } %>
+
+        <% } %>
+    </div>
+
+    <!-- Loading indicator for infinite scroll -->
+    <div id="loading-indicator" class="text-center py-4" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading more students...</span>
+        </div>
+        <p class="mt-2 text-muted">Loading more students...</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-submit form when campus changes for better UX
+        document.querySelector('select[name="campus"]').addEventListener('change', function() {
+            if (this.value) {
+                this.form.submit();
+            }
+        });
+
+        // Infinite scroll functionality
+        let isLoading = false;
+        let hasMore = true;
+        let currentOffset = <%= students && students.length ? students.length : 0 %>;
+        const sessionId = '<%= sessionId %>';
+        const filters = {
+            campus: '<%= filters.campus %>',
+            type: '<%= filters.type %>',
+            poolYear: '<%= filters.poolYear %>',
+            poolMonth: '<%= filters.poolMonth %>'
+        };
+
+        // Function to create student table row HTML
+        function createStudentRow(student) {
+            const avatarHtml = student.image && student.image.link 
+                ? `<img src="${student.image.link}" alt="${student.login}" class="student-avatar me-2">`
+                : `<div class="student-avatar me-2 d-flex align-items-center justify-content-center" style="background-color: #f8f9fa;">
+                     <i class="fas fa-user text-muted"></i>
+                   </div>`;
+            
+            const campusColumn = filters.campus === 'all-morocco' && student.campus_info 
+                ? `<td>
+                     <small class="text-muted">
+                       <i class="fas fa-map-marker-alt"></i>
+                       ${student.campus_info.name}<br>
+                       ${student.campus_info.city}
+                     </small>
+                   </td>`
+                : '';
+            
+            const poolBadge = student.pool_month && student.pool_year 
+                ? `<span class="badge bg-success">${student.pool_month} ${student.pool_year}</span>`
+                : '<span class="text-muted">-</span>';
+            
+            const level = student.level 
+                ? `<span class="badge bg-primary">${student.level.toFixed(2)}</span>`
+                : '<span class="text-muted">-</span>';
+            
+            const wallet = student.wallet 
+                ? student.wallet
+                : '<span class="text-muted">-</span>';
+
+            return `
+                <tr onclick="window.open('https://profile.intra.42.fr/users/${student.login}', '_blank')" style="cursor: pointer;">
+                    <td>
+                        <div class="d-flex align-items-center">
+                            ${avatarHtml}
+                            <div>
+                                <strong>${student.displayname || student.login}</strong>
+                                ${student.first_name && student.last_name ? `<br><small class="text-muted">${student.first_name} ${student.last_name}</small>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td><code>${student.login}</code></td>
+                    ${campusColumn}
+                    <td>${level}</td>
+                    <td>${poolBadge}</td>
+                    <td>${wallet}</td>
+                    <td>
+                        <a href="/student/${student.id}${sessionId ? '?session=' + sessionId : ''}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Function to load more students
+        async function loadMoreStudents() {
+            if (isLoading || !hasMore) return;
+            
+            isLoading = true;
+            document.getElementById('loading-indicator').style.display = 'block';
+            
+            try {
+                const params = new URLSearchParams({
+                    session: sessionId,
+                    campus: filters.campus,
+                    type: filters.type,
+                    poolYear: filters.poolYear,
+                    poolMonth: filters.poolMonth,
+                    offset: currentOffset,
+                    limit: 50
+                });
+                
+                const response = await fetch(`/api/students/more?${params}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error('Error loading more students:', data.error);
+                    return;
+                }
+                
+                if (data.students && data.students.length > 0) {
+                    const studentsContainer = document.querySelector('.students-container');
+                    
+                    data.students.forEach(student => {
+                        const studentRow = createStudentRow(student);
+                        studentsContainer.insertAdjacentHTML('beforeend', studentRow);
+                    });
+                    
+                    currentOffset = data.nextOffset;
+                    hasMore = data.hasMore && data.students.length > 0;
+                    
+                    // Update total count
+                    const totalElement = document.querySelector('.total-count');
+                    if (totalElement) {
+                        const currentTotal = parseInt(totalElement.textContent) || 0;
+                        totalElement.textContent = currentTotal + data.students.length;
+                    }
+                } else {
+                    hasMore = false;
+                }
+                
+            } catch (error) {
+                console.error('Error loading more students:', error);
+                hasMore = false;
+            } finally {
+                isLoading = false;
+                document.getElementById('loading-indicator').style.display = 'none';
+            }
+        }
+
+        // Infinite scroll event listener
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
+                loadMoreStudents();
+            }
+        });
+
+        // Initial setup - only start infinite scroll if we have students
+        <% if (students && students.length > 0) { %>
+            // Start background loading after page loads
+            setTimeout(() => {
+                if (hasMore) {
+                    loadMoreStudents();
+                }
+            }, 2000); // Wait 2 seconds before starting background load
+        <% } %>
+    </script>
+</body>
+</html>
